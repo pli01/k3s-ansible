@@ -1,0 +1,13 @@
+apt_default_packages:
+    - sudo
+    - curl
+    - jq
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+    - gnupg
+    - make
+    - git
+    - unzip
+    - python3-pip

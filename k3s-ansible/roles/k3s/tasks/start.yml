@@ -1,0 +1,12 @@
+---
+#
+# start
+#
+- name: Enable and check K3s service
+  systemd:
+    name: "{{ 'k3s-agent' if K3S_AGENT is defined and K3S_AGENT else 'k3s' }}"
+    daemon_reload: true
+    state: started
+    enabled: true
+
+

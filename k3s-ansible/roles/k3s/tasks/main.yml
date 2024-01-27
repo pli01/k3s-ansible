@@ -1,0 +1,12 @@
+---
+
+- include_tasks: pre.yml
+
+- include_tasks: install.yml
+  when: not k3s_is_installed
+
+- include_tasks: configure.yml
+
+- include_tasks: start.yml
+
+- include_tasks: post.yml

@@ -1,0 +1,27 @@
+---
+# If airgapped, all K3s artifacts are already on the node.
+- name: Download K3s install script
+  when: airgap_dir is undefined
+  ansible.builtin.get_url:
+    url: https://get.k3s.io/
+    timeout: 120
+    dest: /usr/local/bin/k3s-install.sh
+    owner: root
+    group: root
+    mode: 0755
+  register: result
+  until: "result is succeeded or not result.changed or result.status_code == 200"
+  retries: 5
+  delay: 10
+
+- name: Download K3s binary
+  when: airgap_dir is undefined
+  ansible.builtin.command:
+    cmd: /usr/local/bin/k3s-install.sh
+  environment:
+    INSTALL_K3S_SKIP_START: "true"
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: "{{ k3s_exec }}"
+    K3S_TOKEN: "{{ k3s_token }}"
+    K3S_URL: "{{ k3s_url }}"
+  changed_when: true

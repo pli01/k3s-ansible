@@ -1,0 +1,17 @@
+---
+#
+# configure
+#
+- name: Add service environment variables
+  when: extra_service_envs is defined
+  lineinfile:
+    path: "{{ systemd_dir }}/{{ 'k3s-agent' if K3S_AGENT is defined else 'k3s' }}.service.env"
+    line: "{{ item }}"
+  with_items: "{{ extra_service_envs }}"
+
+#- import_tasks: http_proxy.yml
+#  when: proxy_env is defined and proxy_env.keys() | length > 0
+
+- import_tasks: preconfigure-auto-deploying-manifests.yml
+  when: ( K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT )
+        and k3s_server_manifests_templates | length > 0

@@ -1,0 +1,6 @@
+---
+## source of inspiration
+#- src: git+https://github.com/geerlingguy/ansible-role-docker.git
+#  scm: git
+#  version: master
+#  name: docker

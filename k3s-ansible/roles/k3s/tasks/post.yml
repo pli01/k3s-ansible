@@ -1,0 +1,15 @@
+---
+- name: Check that all nodes to be ready
+  ansible.builtin.command: "{{ k3s_install_dir }}/kubectl get nodes"
+  changed_when: false
+  register: kubectl_get_nodes_result
+  failed_when: kubectl_get_nodes_result.stdout.find("was refused") != -1 or
+               kubectl_get_nodes_result.stdout.find("ServiceUnavailable") != -1
+  until: kubectl_get_nodes_result.rc == 0
+         and kubectl_get_nodes_result.stdout.find("NotReady") == -1
+  retries: 30
+  delay: 20
+  when: ( K3S_SERVER is defined and K3S_SERVER )
+        or ( K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT )
+        and not ansible_check_mode
+  become: true

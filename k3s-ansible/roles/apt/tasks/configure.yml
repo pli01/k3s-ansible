@@ -1,0 +1,23 @@
+---
+- include_tasks: configure-proxy.yml
+  when: proxy_env is defined and proxy_env.keys() | length > 0
+ 
+- stat:
+    path: "/etc/apt/apt.conf.d/00InstallRecommends"
+  register: p
+
+- name: "Create apt file 00InstallRecommends"
+  file:
+    path: "/etc/apt/apt.conf.d/00InstallRecommends"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    state: '{{ "file" if  p.stat.exists else "touch" }}'
+
+- name: "Populate 00InstallRecommends file"
+  lineinfile:
+    dest: "/etc/apt/apt.conf.d/00InstallRecommends"
+    line: '{{item}}'
+  with_items:
+    - 'APT::Install-Recommends "false";'
+    - 'APT::Install-Suggests "false";'

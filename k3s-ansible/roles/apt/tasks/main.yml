@@ -1,0 +1,6 @@
+---
+- include_tasks: configure.yml
+
+- include_tasks: uninstall.yml
+
+- include_tasks: install.yml

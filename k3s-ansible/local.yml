@@ -1,0 +1,70 @@
+- name: "test connectivity"
+  hosts: all
+  pre_tasks:
+    - name: Test | pre_tasks wait_for_connection
+      ansible.builtin.ping:
+    - name: Test | pre_tasks Shell on hosts
+      shell: "uname -a ; echo {{ ansible_host }}"
+  tags: always
+
+# loading environment variables
+#  variable in uppercase so they match the .env files format
+- name: Loading environment variables
+  hosts: all
+  serial: '{{ serial|default("0") }}'
+  gather_facts: false
+  tags: always
+  tasks:
+#    - name: Get env file content
+#      slurp:
+#        src: "/home/{{ lookup('ansible.builtin.env','USER') }}/config.cfg"
+#      register: env_file_content
+#
+#    - name: Parse environment
+#      set_fact:
+#        #env_vars: "{{ ('{' + (env_file_content.content | b64decode).split('\n') | select | map('regex_replace', 'export ([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+#        env_vars: "{{  ('{' + (env_file_content.content | b64decode).split('\n') | select |
+#                    map('regex_replace', '#.*', '') | 
+#                    map('regex_replace', '\"', '') | 
+#                    map('regex_replace', 'export ([^=]*)=(.*)', '\"\\1\": \"\\2\"') |join(',') + '}') }}"
+#
+#    - name: Display environment variables
+#      debug: var=env_vars
+#
+    - name: collect facts
+      setup:
+    - name: set facts
+      set_fact:
+        K3S_CLUSTER_INIT: '{{ lookup("ansible.builtin.env","K3S_CLUSTER_INIT")| default("false") }}'
+        K3S_SERVER: '{{ lookup("ansible.builtin.env","K3S_SERVER")| default("false") }}'
+        K3S_AGENT: '{{ lookup("ansible.builtin.env","K3S_AGENT")| default("false") }}'
+        NODE_TAINTS: '{{ lookup("ansible.builtin.env","NODE_TAINTS")| default("false") }}'
+
+- name: Check facts
+  hosts: all
+  tasks:
+    - name: K3S_CLUSTER_INIT
+      debug: var=K3S_CLUSTER_INIT
+      when: K3S_CLUSTER_INIT
+    - name: K3S_SERVER
+      debug: var=K3S_SERVER
+      when: K3S_SERVER
+    - name: K3S_AGENT
+      debug: var=K3S_AGENT
+      when: K3S_AGENT
+
+- name: Install
+  hosts: all
+  tasks:
+    - name: all
+      include_role:
+        name: '{{ rolevar }}'
+      loop:
+        - apt
+        - docker
+        - k3s
+      loop_control:
+        loop_var: rolevar
+      when: K3S_SERVER or
+            K3S_AGENT or
+            K3S_CLUSTER_INIT

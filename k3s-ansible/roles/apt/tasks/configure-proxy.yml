@@ -1,0 +1,24 @@
+---
+- stat:
+    path: "/etc/apt/apt.conf.d/95proxy"
+  register: p
+
+- name: "Create apt file 95proxy"
+  file:
+    path: "/etc/apt/apt.conf.d/95proxy"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    state: '{{ "file" if  p.stat.exists else "touch" }}'
+
+- name: "Populate 95proxy file"
+  copy:
+    dest: "/etc/apt/apt.conf.d/95proxy"
+    content: |
+      // configure http_proxy
+      {% if proxy_env.http_proxy is defined and proxy_env.http_proxy | length > 0 %}
+      Acquire::http::proxy "{{ proxy_env.http_proxy }}";
+      {% endif %}
+      {% if proxy_env.https_proxy is defined and proxy_env.https_proxy | length > 0 %}
+      Acquire::https::proxy "{{ proxy_env.https_proxy }}";
+      {% endif %}

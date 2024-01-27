@@ -1,0 +1,35 @@
+- name: Create k3s.service.d directory
+  file:
+    path: '{{ systemd_dir }}/k3s.service.d'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create K3s http_proxy conf file
+  blockinfile:
+    dest: "{{ systemd_dir }}/k3s.service.d/http_proxy.conf"
+    create: yes
+    owner: root
+    group: root
+    mode: '0755'
+
+    block: |
+      [Service]
+      {% if proxy_env.http_proxy is defined and proxy_env.http_proxy | length > 0 %}
+      Environment="HTTP_PROXY={{ proxy_env.http_proxy }}"
+      {% endif %}
+      {% if proxy_env.https_proxy is defined and proxy_env.https_proxy | length > 0 %}
+      Environment="HTTPS_PROXY={{ proxy_env.https_proxy }}"
+      {% endif %}
+      {% if proxy_env.no_proxy is defined and proxy_env.no_proxy | length > 0 %}
+      Environment="NO_PROXY=127.0.0.1,localhost,{{ proxy_env.no_proxy }}"
+      {% endif %}
+  when: proxy_env is defined and proxy_env.keys() | length > 0 and ansible_check_mode == false
+  register: k3s_conf_update
+
+- name: Just force systemd to reread configs
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  notify: restart "{{ 'k3s-agent' if K3S_AGENT is defined and K3S_AGENT else 'k3s' }}"
+  when: k3s_conf_update

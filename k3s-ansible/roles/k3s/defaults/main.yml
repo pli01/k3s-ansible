@@ -1,0 +1,48 @@
+systemd_dir: /etc/systemd/system
+# Data directory location for k3s
+k3s_data_dir: /var/lib/rancher/k3s
+k3s_install_dir: /usr/local/bin
+
+# Config directroy location for k3s
+k3s_config_dir: /etc/rancher/k3s
+
+# Path for additional Kubernetes Manifests
+# https://rancher.com/docs/k3s/latest/en/advanced/#auto-deploying-manifests
+k3s_server_manifests_dir: "{{ k3s_data_dir }}/server/manifests"
+
+# A list of templates used for preconfigure the cluster.
+k3s_server_manifests_templates: []
+
+k3s_binary: /usr/local/bin/k3s
+
+k3s_is_installed: false
+k3s_version: '{{ lookup("ansible.builtin.env","K3S_VERSION")| default("latest") }}'
+k3s_token: '{{ lookup("ansible.builtin.env","K3S_TOKEN") | default(None) }}'
+k3s_url: '{{ lookup("ansible.builtin.env","K3S_URL") | default(None) }}'
+
+k3s_server_exec_extra_args: ""
+k3s_server_exec: >
+      server
+      --docker
+      {% if (K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT ) %}
+      --cluster-init
+      {% endif %}
+      {% if K3S_SERVER is defined and K3S_SERVER %}
+      server
+      {% endif %}
+      {% if NODE_TAINTS is defined and "CriticalAddonsOnly" is in NODE_TAINTS %}
+      --node-taint CriticalAddonsOnly=true:NoExecute
+      {% endif %}
+      {{ k3s_server_exec_extra_args | default('')}}
+
+k3s_agent_exec_extra_args: ""
+k3s_agent_exec: >
+      agent
+      {{ k3s_agent_exec_extra_args | default('') }}
+
+k3s_exec: >
+      {% if K3S_AGENT is defined and K3S_AGENT %}
+      {{ k3s_agent_exec }}
+      {% else %}
+      {{ k3s_server_exec }}
+      {% endif %}

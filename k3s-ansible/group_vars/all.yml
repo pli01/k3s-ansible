@@ -1,0 +1,24 @@
+docker_install_compose_plugin: false
+docker_install_compose: true
+docker_compose_version: "v2.23.3"
+
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts: { "max-size": "10m", "max-file": "3" }
+  mtu: 1450
+  exec-opts: ["native.cgroupdriver=systemd"]
+
+docker_users:
+  - root
+  - outscale
+docker_packages:
+  - "docker-{{ docker_edition }}"
+
+proxy_env:
+  http_proxy: '{{ lookup("ansible.builtin.env","http_proxy")| default(False) }}'
+  https_proxy: '{{ lookup("ansible.builtin.env","https_proxy")| default(False) }}'
+  no_proxy: '{{ lookup("ansible.builtin.env","no_proxy")| default(False) }}'
+#proxy_env:
+#  http_proxy: http://localhost:8888
+#  https_proxy: http://localhost:8888
+#  no_proxy: .mydomain.internal

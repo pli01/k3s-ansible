@@ -1,0 +1,22 @@
+---
+- name: Disable unattended-upgrades
+  systemd:
+    name: unattended-upgrades
+  register: svc_present
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Disable unattended-upgrades
+  systemd:
+    name: unattended-upgrades
+    state: stopped
+    enabled: false
+  when: "svc_present.status.LoadState != 'not-found'"
+
+- name: "Uninstall unattended-upgrades"
+  apt:
+    name: unattended-upgrades
+    state: "absent"
+    purge: true
+  when: "svc_present.status.LoadState != 'not-found'"

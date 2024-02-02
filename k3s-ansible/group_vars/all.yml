@@ -1,6 +1,12 @@
 docker_install_compose_plugin: false
 docker_install_compose: true
-docker_compose_version: "v2.23.3"
+
+docker_compose_version_default: "v2.23.3"
+docker_compose_version: "{{ lookup('ansible.builtin.env','docker_compose_version') | default(docker_compose_version_default, true) }}"
+
+docker_version_default: "docker-ce=5:24.0.9-1~debian.12~bookworm"
+docker_packages:
+  - "{{ lookup('ansible.builtin.env','docker_version') | default(docker_version_default, true) }}"
 
 docker_daemon_options:
   log-driver: "json-file"
@@ -11,8 +17,9 @@ docker_daemon_options:
 docker_users:
   - root
   - outscale
-docker_packages:
-  - "docker-{{ docker_edition }}"
+
+k3s_version_default: v1.28.5+k3s1
+k3s_version: "{{ lookup('ansible.builtin.env','K3S_VERSION') | default(k3s_version_default, true) }}"
 
 proxy_env:
   http_proxy: '{{ lookup("ansible.builtin.env","http_proxy")| default(False) }}'

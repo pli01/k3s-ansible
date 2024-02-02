@@ -8,5 +8,7 @@
     daemon_reload: true
     state: started
     enabled: true
-
-
+  register: k3s_service
+  until: k3s_service.status.ActiveState == "active"
+  retries: 15
+  delay: 20

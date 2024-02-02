@@ -14,7 +14,9 @@
   retries: 5
   delay: 10
 
-- name: Download K3s binary
+- debug: var=k3s_version
+
+- name: Download K3s binary "{{ k3s_version }}"
   when: airgap_dir is undefined
   ansible.builtin.command:
     cmd: /usr/local/bin/k3s-install.sh

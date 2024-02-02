@@ -33,14 +33,15 @@ default:
           K3S_CONF:
             ansible_pull_url: ${ansible_git_url}
             ansible_pull_args: ${ansible_pull_args}
-            docker_version: docker-ce=5:24.0.7-1~debian.12~bookworm
             K3S_CLUSTER_INIT: true
-            K3S_VERSION: v1.28.5+k3s1
             K3S_TOKEN: ${K3S_TOKEN}
             DOCKERHUB_LOGIN: ${DOCKERHUB_LOGIN}
             DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
             NODE_TAINTS: CriticalAddonsOnly
             PORTAINER_ADMIN_PASSWORD: ${PORTAINER_ADMIN_PASSWORD}
+            NODE_MASTERS_INIT_COUNT: ${k3s_masters_init_count}
+            NODE_MASTERS_ADD_COUNT: ${k3s_masters_add_count}
+            NODE_WORKERS_COUNT: ${k3s_workers_count}
 
       - filename: 01-config-script-ansible-pull.sh
         content_type: text/x-shellscript
@@ -58,9 +59,7 @@ default:
           K3S_CONF:
             ansible_pull_url: ${ansible_git_url}
             ansible_pull_args: ${ansible_pull_args}
-            docker_version: docker-ce=5:24.0.7-1~debian.12~bookworm
             K3S_SERVER: true
-            K3S_VERSION: v1.28.5+k3s1
             K3S_TOKEN: ${K3S_TOKEN}
             DOCKERHUB_LOGIN: ${DOCKERHUB_LOGIN}
             DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
@@ -85,9 +84,7 @@ default:
           K3S_CONF:
             ansible_pull_url: ${ansible_git_url}
             ansible_pull_args: ${ansible_pull_args}
-            docker_version: docker-ce=5:24.0.7-1~debian.12~bookworm
             K3S_AGENT: true
-            K3S_VERSION: v1.28.5+k3s1
             K3S_TOKEN: ${K3S_TOKEN}
             DOCKERHUB_LOGIN: ${DOCKERHUB_LOGIN}
             DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}

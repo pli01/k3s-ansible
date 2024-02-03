@@ -8,6 +8,25 @@
       shell: "uname -a ; echo {{ ansible_host }}"
   tags: always
 
+- name: Set up k3s cluster
+  hosts: all
+  become: True
+  pre_tasks:
+    - name: init first control node
+      when: '"master_init" in group_names'
+      ansible.builtin.set_fact:
+        K3S_CLUSTER_INIT: true
+
+    - name: Set each node to be a control node
+      when: '"master_add" in group_names'
+      ansible.builtin.set_fact:
+        K3S_SERVER: true
+
+    - name: Set node to be agent node
+      when: '"agent" in group_names'
+      ansible.builtin.set_fact:
+        K3S_AGENT: true
+
 - name: Check facts
   hosts: all
   serial: '{{ serial | default("0") }}'

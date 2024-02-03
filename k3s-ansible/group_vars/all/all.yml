@@ -1,0 +1,16 @@
+count_group_master: "{{ ( groups['master'] |default()) | length}}"
+count_env_master: "{{
+  lookup('ansible.builtin.env','NODE_MASTERS_INIT_COUNT') |int | default(0)+
+  lookup('ansible.builtin.env','NODE_MASTERS_ADD_COUNT') |int | default(0)
+}}"
+count_master: "{{count_group_master if (count_group_master|int > 0) else count_env_master}}"
+count_workers: "{{ lookup('ansible.builtin.env','NODE_WORKERS_COUNT') |int| default(0) }}"
+
+proxy_env:
+  http_proxy: "{{ lookup('ansible.builtin.env','http_proxy')| default(False) }}"
+  https_proxy: "{{ lookup('ansible.builtin.env','https_proxy')| default(False) }}"
+  no_proxy: "{{ lookup('ansible.builtin.env','no_proxy')| default(False) }}"
+#proxy_env:
+#  http_proxy: http://localhost:8888
+#  https_proxy: http://localhost:8888
+#  no_proxy: .mydomain.internal

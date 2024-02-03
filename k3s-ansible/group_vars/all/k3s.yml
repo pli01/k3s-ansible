@@ -1,0 +1,4 @@
+k3s_version_default: v1.28.5+k3s1
+k3s_version: "{{ lookup('ansible.builtin.env','K3S_VERSION') | default(k3s_version_default, true) }}"
+
+k3s_token: "{{ lookup('ansible.builtin.env','K3S_TOKEN') | default() }}"

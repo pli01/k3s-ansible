@@ -6,7 +6,7 @@ parameters = {
   keypair_name = "default-outscale"
 
   ansible_git_url  = "https://github.com/pli01/k3s-terraform-ansible"
-  ansible_pull_args = "k3s-ansible/local.yml"
+  ansible_pull_args = "k3s-ansible/local.yml -i k3s-ansible/inventory/local -C main -v"
 
   bastion_count          = 1
   k3s_masters_init_count = 1

@@ -1,0 +1,102 @@
+- name: "test connectivity"
+  hosts: all
+  pre_tasks:
+    - name: Test | pre_tasks wait_for_connection
+      ansible.builtin.ping:
+    - name: Test | pre_tasks Shell on hosts
+      shell: "uname -a ; echo {{ ansible_host }}"
+  tags: always
+
+# loading environment variables
+#  variable in uppercase so they match the .env files format
+#- name: Loading environment variables
+#  hosts: all
+#  serial: '{{ serial|default("0") }}'
+#  gather_facts: false
+#  tags: always
+#  pre_tasks:
+#    - name: Get env file content
+#      slurp:
+#        src: "/home/{{ lookup('ansible.builtin.env','USER') }}/config.cfg"
+#      register: env_file_content
+#
+#    - name: Parse environment
+#      set_fact:
+#        #env_vars: "{{ ('{' + (env_file_content.content | b64decode).split('\n') | select | map('regex_replace', 'export ([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+#        env_vars: "{{  ('{' + (env_file_content.content | b64decode).split('\n') | select |
+#                    map('regex_replace', '#.*', '') | 
+#                    map('regex_replace', '\"', '') | 
+#                    map('regex_replace', 'export ([^=]*)=(.*)', '\"\\1\": \"\\2\"') |join(',') + '}') }}"
+#
+#    - name: Display environment variables
+#      debug: var=env_vars
+#
+#    - name: check if we can get metadata
+#      uri:
+#        url: http://169.254.169.254/latest/meta-data
+#        timeout: 3
+#      register: meta_check
+#      failed_when: False
+#
+#    - name: store result
+#      set_fact:
+#        inside_outscale: "{{ meta_check.status == 200 }}"
+#    - name: get the list of tags
+#      uri:
+#        url: http://169.254.169.254/latest/meta-data/tags/kube_groups
+#        timeout: 3
+#        return_content: true
+#      register: tag_list
+#      when: inside_outscale
+#
+#    - debug: var=tag_list
+#
+#    - name: create facts out of tags
+#      when: inside_outscale
+#      set_fact:
+#        "kube_groups": "{{ tag }}"
+#      with_items: "{{ tag_list.content }}"
+#      loop_control:
+#        loop_var: tag
+#
+#    - name: add host to group
+#      add_host:
+#        name: "{{ inventory_hostname }}"
+#        groups: "{{ kube_groups }}"
+#    - group_by:
+#        key: master_init
+#        parents: master
+#    - group_by:
+#        key: master_add
+#        parents: master
+#
+#    - name: collect facts
+#      setup:
+#    - name: set facts
+#      set_fact:
+#        K3S_CLUSTER_INIT: '{{ lookup("ansible.builtin.env","K3S_CLUSTER_INIT")| default("false") }}'
+#        K3S_SERVER: '{{ lookup("ansible.builtin.env","K3S_SERVER")| default("false") }}'
+#        K3S_AGENT: '{{ lookup("ansible.builtin.env","K3S_AGENT")| default("false") }}'
+#        NODE_TAINTS: '{{ lookup("ansible.builtin.env","NODE_TAINTS")| default("false") }}'
+
+- name: Check facts
+  hosts: all
+  serial: '{{ serial | default("0") }}'
+  pre_tasks:
+    - name: K3S_CLUSTER_INIT
+      debug: var=K3S_CLUSTER_INIT
+      when: K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT
+    - name: K3S_SERVER
+      debug: var=K3S_SERVER
+      when: K3S_SERVER is defined and K3S_SERVER
+    - name: K3S_AGENT
+      debug: var=K3S_AGENT
+      when: K3S_AGENT is defined and K3S_AGENT
+    - debug: var=count_group_master
+    - debug: var=count_master
+      #- fail: msg=stop
+
+  roles:
+    - role: apt
+    - role: docker
+    - role: k3s

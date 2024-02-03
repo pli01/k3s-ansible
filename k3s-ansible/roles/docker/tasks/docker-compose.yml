@@ -27,7 +27,7 @@
     mode: 0755
     timeout: 60
   register: download_result
-  until: "download_result.status_code == 200 or download_result is succeeded"
+  until: "download_result is succeeded or download_result is succeeded"
   retries: 10
   delay: 5
   when: >

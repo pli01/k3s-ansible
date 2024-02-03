@@ -1,0 +1,31 @@
+---
+- name: Check k3s-uninstall.sh exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: p
+
+- name: Uninstall k3s
+  ansible.builtin.shell:
+    cmd: /usr/local/bin/k3s-uninstall.sh
+  ignore_errors: true
+  when: p.stat.exists
+  tags: uninstall-k3s
+
+- name: Check k3s-agent-uninstall.sh exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-agent-uninstall.sh
+  register: p
+
+- name: Uninstall k3s-agent
+  ansible.builtin.shell:
+    cmd: /usr/local/bin/k3s-agent-uninstall.sh
+  ignore_errors: true
+  when: p.stat.exists
+  tags: uninstall-k3s
+
+- name: Remove docker container and image
+  ansible.builtin.shell:
+    cmd: >
+      docker ps -aq |xargs docker rm -f || true ;
+      docker system prune -af
+  tags: uninstall-k3s

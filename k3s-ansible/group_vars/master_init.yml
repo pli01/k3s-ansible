@@ -1,0 +1,3 @@
+---
+K3S_CLUSTER_INIT: "{{ lookup('ansible.builtin.env','K3S_CLUSTER_INIT')| default('true') }}"
+k3s_url: ""

@@ -17,15 +17,3 @@ docker_daemon_options:
 docker_users:
   - root
   - outscale
-
-k3s_version_default: v1.28.5+k3s1
-k3s_version: "{{ lookup('ansible.builtin.env','K3S_VERSION') | default(k3s_version_default, true) }}"
-
-proxy_env:
-  http_proxy: '{{ lookup("ansible.builtin.env","http_proxy")| default(False) }}'
-  https_proxy: '{{ lookup("ansible.builtin.env","https_proxy")| default(False) }}'
-  no_proxy: '{{ lookup("ansible.builtin.env","no_proxy")| default(False) }}'
-#proxy_env:
-#  http_proxy: http://localhost:8888
-#  https_proxy: http://localhost:8888
-#  no_proxy: .mydomain.internal

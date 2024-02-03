@@ -1,0 +1,2 @@
+---
+NODE_TAINTS: "{{ lookup('ansible.builtin.env','NODE_TAINTS')| default('CriticalAddonsOnly') }}"

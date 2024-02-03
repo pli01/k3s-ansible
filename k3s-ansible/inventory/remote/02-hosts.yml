@@ -1,0 +1,28 @@
+---
+master:
+  children:
+    master_init:
+    master_add:
+agent:
+  children:
+
+#all:
+#  vars:
+#    ip: "{{ ansible_host }}"
+#  children:
+#    kube_control_plane:
+#      children:
+#        k8s_master:
+#    kube_node:
+#      children:
+#        k8s_infra:
+#        k8s_ingress_infra:
+#        k8s_worker:
+#        k8s_ingress:
+#    etcd:
+#      children:
+#        k8s_master:
+#    k8s_cluster:
+#      children:
+#        kube_control_plane:
+#        kube_node:

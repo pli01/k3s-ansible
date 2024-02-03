@@ -80,6 +80,9 @@ default:
             NODE_TAINTS: CriticalAddonsOnly
             K3S_SERVER_IP_LIST:
               - 172.16.1.10
+            NODE_MASTERS_INIT_COUNT: ${k3s_masters_init_count}
+            NODE_MASTERS_ADD_COUNT: ${k3s_masters_add_count}
+            NODE_WORKERS_COUNT: ${k3s_workers_count}
 
       - filename: 01-config-script-ansible-pull.sh
         content_type: text/x-shellscript
@@ -520,7 +523,7 @@ resources:
         osc.fcu.attract_cluster: ${prefix_name}
         k3s.label.web: true     # group
         k3s.label.ingress: true # type
-        kube_groups: worker_app_a
+        kube_groups: "worker_app_a,agent"
       interfaces:
         - subnet: private-worker-app-a
           security_groups:

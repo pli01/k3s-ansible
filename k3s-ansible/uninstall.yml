@@ -1,0 +1,9 @@
+---
+- name: Set up k3s cluster
+  hosts: all
+  become: True
+  tasks:
+      - name: k3s
+        import_tasks: roles/k3s/tasks/uninstall.yml
+        tags:
+          - uninstall-k3s

@@ -20,32 +20,36 @@ k3s_is_installed: false
 k3s_version_default: v1.28.5+k3s1
 k3s_version: "{{ lookup('ansible.builtin.env','K3S_VERSION') | default(k3s_version_default, true) }}"
 
-k3s_token: '{{ lookup("ansible.builtin.env","K3S_TOKEN") | default(None) }}'
-k3s_url: '{{ lookup("ansible.builtin.env","K3S_URL") | default(None) }}'
+#k3s_token: "{{ lookup('ansible.builtin.env','K3S_TOKEN' , default=Undefined) }}"
+k3s_url: "{{ lookup('ansible.builtin.env','K3S_URL') | default() }}"
+
+node_label_list: []
+node_label: >-
+  {% for label in node_label_list %}
+  --node-label {{ label }}
+  {% endfor %}
 
 k3s_server_exec_extra_args: ""
-k3s_server_exec: >
+k3s_server_exec: >-
       server
       --docker
-      {% if (K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT ) %}
+      {% if (K3S_CLUSTER_INIT is defined and K3S_CLUSTER_INIT ) -%}
       --cluster-init
-      {% endif %}
-      {% if K3S_SERVER is defined and K3S_SERVER %}
-      server
-      {% endif %}
-      {% if NODE_TAINTS is defined and "CriticalAddonsOnly" is in NODE_TAINTS %}
+      {%- endif %}
+      {% if NODE_TAINTS is defined and "CriticalAddonsOnly" is in NODE_TAINTS -%}
       --node-taint CriticalAddonsOnly=true:NoExecute
-      {% endif %}
-      {{ k3s_server_exec_extra_args | default('')}}
+      {%- endif %}
+      {{ k3s_server_exec_extra_args | default('') }}
 
 k3s_agent_exec_extra_args: ""
-k3s_agent_exec: >
+k3s_agent_exec: >-
       agent
+      --docker
       {{ k3s_agent_exec_extra_args | default('') }}
 
-k3s_exec: >
-      {% if K3S_AGENT is defined and K3S_AGENT %}
+k3s_exec: >-
+      {% if K3S_AGENT is defined and K3S_AGENT -%}
       {{ k3s_agent_exec }}
-      {% else %}
+      {%- else -%}
       {{ k3s_server_exec }}
-      {% endif %}
+      {%- endif %}

@@ -14,8 +14,6 @@
   retries: 5
   delay: 10
 
-- debug: var=k3s_version
-
 - name: Download K3s binary "{{ k3s_version }}"
   when: airgap_dir is undefined
   ansible.builtin.command:
@@ -23,7 +21,7 @@
   environment:
     INSTALL_K3S_SKIP_START: "true"
     INSTALL_K3S_VERSION: "{{ k3s_version }}"
-    INSTALL_K3S_EXEC: "{{ k3s_exec }}"
-    K3S_TOKEN: "{{ k3s_token }}"
-    K3S_URL: "{{ k3s_url }}"
+    INSTALL_K3S_EXEC: "{{ k3s_exec | default() }}"
+    K3S_URL: "{{ k3s_url | default() }}"
+    K3S_TOKEN: "{{ k3s_token | default() }}"
   changed_when: true

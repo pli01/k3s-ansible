@@ -1,0 +1,4 @@
+---
+K3S_SERVER: "{{ lookup('ansible.builtin.env','K3S_SERVER')| default('true') }}"
+first_master: "{{ 'https://%s:6443' | format(hostvars[groups['master_init'][0]]['ansible_host'] | default(groups['master'][0]))|default() }}"
+k3s_url: "{{ lookup('ansible.builtin.env','K3S_URL') | default(first_master | default ('')) }}"

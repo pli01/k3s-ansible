@@ -9,6 +9,6 @@
     state: started
     enabled: true
   register: k3s_service
-  until: k3s_service.status.ActiveState == "active"
+  until: 'k3s_service is succeeded or "active" in k3s_service.status.ActiveState'
   retries: 15
   delay: 20

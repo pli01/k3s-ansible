@@ -1,22 +1,36 @@
 ---
-- name: Disable unattended-upgrades
-  systemd:
-    name: unattended-upgrades
-  register: svc_present
-  check_mode: false
-  changed_when: false
-  failed_when: false
+#- name: Disable unattended-upgrades
+#  systemd:
+#    name: unattended-upgrades
+#  register: svc_present
+#  check_mode: false
+#  changed_when: false
+#  failed_when: false
+#
+#- name: Disable unattended-upgrades
+#  systemd:
+#    name: unattended-upgrades
+#    state: stopped
+#    enabled: false
+#  when: "svc_present.status.LoadState != 'not-found'"
+#
+#- name: "Uninstall unattended-upgrades"
+#  apt:
+#    name: unattended-upgrades
+#    state: "absent"
+#    purge: true
+#  when: "svc_present.status.LoadState != 'not-found'"
 
-- name: Disable unattended-upgrades
-  systemd:
-    name: unattended-upgrades
+- name: Stop and disable unnecessary services
+  service:
+    name: "{{ item }}"
     state: stopped
     enabled: false
-  when: "svc_present.status.LoadState != 'not-found'"
+  with_items: "{{ unnecessary_services }}"
+  ignore_errors: yes
 
-- name: "Uninstall unattended-upgrades"
-  apt:
-    name: unattended-upgrades
-    state: "absent"
+- name: Remove undesirable packages
+  ansible.builtin.apt:
+    name: "{{ unnecessary_packages }}"
+    state: absent
     purge: true
-  when: "svc_present.status.LoadState != 'not-found'"

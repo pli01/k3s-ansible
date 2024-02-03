@@ -8,12 +8,16 @@ libdir=/home/$cloud_user
 # Load config if exists
 [ -f ${libdir}/config.cfg ] && source ${libdir}/config.cfg
 
+# retry in case of network delay
+echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80-retries
+
 # install dependencies
 PACKAGES="sudo curl jq apt-transport-https ca-certificates curl software-properties-common gnupg make git unzip python3-pip"
 DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT:-1200}
 test_result=1
 timeout=$DEFAULT_TIMEOUT
-until [ "$timeout" -le 0 -o "$test_result" -eq "0" ] ; do
+set +e
+until [ "$timeout" -le 0 -o "$test_result" -eq 0 ] ; do
   ( apt-get -q update && apt-get install -qy --no-install-recommends $PACKAGES )
   test_result=$?
   if [ "$test_result" -gt 0 ] ;then
@@ -28,6 +32,7 @@ if [ "$test_result" -gt 0 ] ;then
         exit $test_result
 fi
 
+set -e
 # install ansible from pip
 export ansible_version="${ansible_version:-ansible}"
 python3 -m pip --timeout 120  install --break-system-packages ansible

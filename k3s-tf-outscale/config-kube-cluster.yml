@@ -25,6 +25,20 @@ default:
     - ${IP_ALLOW}
 
   cloud_init:
+    cloudinit_bastion: &cloudinit_bastion
+      - filename: 00-config-script-k3s-config.sh
+        content_type: text/x-shellscript
+        templatefile: ../cloud-init/config-script-k3s-config.sh.tftpl
+        vars:
+          K3S_CONF:
+            NODE_MASTERS_INIT_COUNT: ${k3s_masters_init_count}
+            NODE_MASTERS_ADD_COUNT: ${k3s_masters_add_count}
+            NODE_WORKERS_COUNT: ${k3s_workers_count}
+
+      - filename: 01-config-script-ansible-pull.sh
+        content_type: text/x-shellscript
+        file: ../cloud-init/config-script-ansible-pull.sh
+
     cloudinit_kube_master_first: &cloudinit_kube_master_first
       - filename: 00-config-script-k3s-config.sh
         content_type: text/x-shellscript
@@ -446,6 +460,9 @@ resources:
             - out-restricted-to-all
             - in-ssh-to-bastion
             - out-ssh-to-net
+      enable_user_data: true
+      cloudinit_multipart:
+        *cloudinit_bastion
     # first control plane (cluster-init)
     master-a:
       count: ${k3s_masters_init_count}
@@ -455,6 +472,7 @@ resources:
         # tags to repulse instances on different hypervisor, on same cluster
         osc.fcu.repulse_server_strict: master-a
         osc.fcu.attract_cluster: ${prefix_name}
+        kube_groups: master_init
       interfaces:
         - subnet: private-master-a
           private_ip: 172.16.1.10
@@ -478,6 +496,7 @@ resources:
         osc.fcu.repulse_server_strict: master-a
         osc.fcu.attract_cluster: ${prefix_name}
         k3s.label.master: true
+        kube_groups: master_add
       interfaces:
         - subnet: private-master-a
           security_groups:
@@ -501,6 +520,7 @@ resources:
         osc.fcu.attract_cluster: ${prefix_name}
         k3s.label.web: true     # group
         k3s.label.ingress: true # type
+        kube_groups: worker_app_a
       interfaces:
         - subnet: private-worker-app-a
           security_groups:

@@ -42,6 +42,6 @@ ansible --version
 if [ -n "${ansible_pull_url}" ]; then
     echo "# ansible-pull $ansible_pull_url"
     dest_dir=${libdir}/$(basename $ansible_pull_url)
-    ansible-pull -i$(hostname -s), -c local --diff --clean -U $ansible_pull_url -d $dest_dir ${ansible_pull_args}
+    ansible-pull -c local --diff --clean -U $ansible_pull_url -d $dest_dir ${ansible_pull_args}
 fi
 echo "# INFO end ansible.sh $(date)"

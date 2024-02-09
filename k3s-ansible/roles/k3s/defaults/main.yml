@@ -45,6 +45,7 @@ k3s_agent_exec_extra_args: ""
 k3s_agent_exec: >-
       agent
       --docker
+      {{ node_label | default('') }}
       {{ k3s_agent_exec_extra_args | default('') }}
 
 k3s_exec: >-

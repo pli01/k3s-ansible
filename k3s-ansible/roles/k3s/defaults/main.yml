@@ -11,6 +11,9 @@ k3s_config_dir: /etc/rancher/k3s
 k3s_server_manifests_dir: "{{ k3s_data_dir }}/server/manifests"
 
 # A list of templates used for preconfigure the cluster.
+#
+# k3s_server_manifests_templates:
+#  - { src: 'ingress-nginx.yaml.j2', dest: 'ingress-nginx.yaml' }
 k3s_server_manifests_templates: []
 
 k3s_binary: /usr/local/bin/k3s

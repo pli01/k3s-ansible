@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ ingress_nginx_namespace }}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: {{ ingress_nginx_namespace }}
+  namespace: kube-system
+spec:
+  chart: ingress-nginx
+  repo: https://kubernetes.github.io/ingress-nginx
+  targetNamespace: {{ ingress_nginx_namespace }}
+  version: {{ ingress_nginx_chart_version }}
+  set:
+  valuesContent: |-
+    namespaceOverride: {{ ingress_nginx_namespace }}
+    fullnameOverride: {{ ingress_nginx_namespace }}
+    controller:
+      ingressClassResource:
+        name: {{ ingress_nginx_name }}
+      ingressClass: {{ ingress_nginx_name }}
+      kind: DaemonSet
+      daemonset:
+        useHostNetwork: true
+        useHostPort: true
+      hostPort:
+        enabled: true
+      service:
+        enabled: true
+        type: NodePort
+      dnsPolicy: ClusterFirstWithHostNet
+      metrics:
+        enabled: false
+        serviceMonitor:
+          enabled: false
+      config:
+        use-forwarded-headers: "true"
+{% if ingress_nginx_nodeselector %}
+      nodeSelector:
+        {{ ingress_nginx_nodeselector | to_nice_yaml | indent(width=8) }}
+{%- endif %}
+      admissionWebhooks:
+        patch:
+{% if ingress_nginx_nodeselector %}
+          nodeSelector:
+            {{ ingress_nginx_nodeselector | to_nice_yaml | indent(width=8) }}
+{%- endif %}
+    defaultBackend:
+{% if ingress_nginx_nodeselector %}
+      nodeSelector:
+        {{ ingress_nginx_nodeselector | to_nice_yaml | indent(width=8) }}
+{%- endif %}

@@ -41,3 +41,27 @@ ansible-playbook -c local -i inventory/local -b uninstall.yml -v
 # push mode
 ansible-playbook -i inventory/remote -b uninstall.yml -v
 ```
+
+# Versions
+
+ansible: 2.16.3
+
+group_vars/all/docker.yml
+```
+docker_compose_version_default: "v2.23.3"
+docker_version_default: "docker-ce=5:24.0.9-1~debian.12~bookworm"
+```
+
+group_vars/all/k3s.yml
+```
+k3s_version_default: v1.28.5+k3s1
+```
+
+group_vars/all/ingress-nginx.yml
+```
+ingress_nginx_chart_version: v4.9.0
+```
+
+`TODO`
+CNI
+CSI

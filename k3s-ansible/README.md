@@ -65,3 +65,29 @@ ingress_nginx_chart_version: v4.9.0
 `TODO`
 CNI
 CSI
+
+# K3S Cluster configurations
+
+use `K3S_*` variables to configure
+
+see:
+- https://docs.k3s.io/cli/server
+- https://docs.k3s.io/cli/agent
+
+Some variables defined per node:
+
+K3S_CLUSTER_INIT: define node as first ctrl plane node . Initialize a new cluster using embedded Etcd
+K3S_SERVER: define node as server. Set on on all other ctrl plane  node (not one init node)
+K3S_AGENT: define node as agent
+K3S_URL: define url of cluster ctrl plane node (first ctrl plane node or vip )
+K3S_TOKEN: define the token used to enrolle all ctrl plane and agent to first ctrl node
+NODE_TAINTS: define taint of ctrl plane node. If CriticalAddonsOnly is defined, all ctrl plane will be dedicated api, no workload on it
+
+Some configuration:
+- inventory,group name for a node can be defined with cloud-init meta-data tags, using kube_groups tags (http://169.254.169.254/latest/meta-data/tags/kube_groups)
+  - kube_groups=master_init : define the node in master_init group (first ctrl plane node)
+  - kube_groups=master_add : define the node in master_add group (other ctrl plane node)
+  - kube_groups="worker_app,agent" : define the node in 2 groups (worker_app and agent) group (worker agent node)
+- node_labels for a node can be defined with cloud-init meta-data tags (http://169.254.169.254/latest/meta-data/tags/k3s.label.XXX)
+  - k3s.label.web=true: will affect a label (web=true) to the node
+  - k3s.label.ingress=true: will affect a label (web=true) to the node 

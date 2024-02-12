@@ -32,6 +32,13 @@ node_label: >-
   --node-label {{ label }}
   {% endfor %}
 
+node_taint_list: []
+node_taint: >-
+  {% for taint in node_taint_list %}
+  --node-taint {{ taint }}
+  {% endfor %}
+
+
 k3s_server_exec_extra_args: ""
 k3s_server_exec: >-
       server
@@ -42,6 +49,7 @@ k3s_server_exec: >-
       {% if NODE_TAINTS is defined and "CriticalAddonsOnly" is in NODE_TAINTS -%}
       --node-taint CriticalAddonsOnly=true:NoExecute
       {%- endif %}
+      {{ node_taint | default('') }}
       {{ k3s_server_exec_extra_args | default('') }}
 
 k3s_agent_exec_extra_args: ""
@@ -49,6 +57,7 @@ k3s_agent_exec: >-
       agent
       --docker
       {{ node_label | default('') }}
+      {{ node_taint | default('') }}
       {{ k3s_agent_exec_extra_args | default('') }}
 
 k3s_exec: >-

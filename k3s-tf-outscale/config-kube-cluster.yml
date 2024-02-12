@@ -51,7 +51,7 @@ default:
             K3S_TOKEN: ${K3S_TOKEN}
             DOCKERHUB_LOGIN: ${DOCKERHUB_LOGIN}
             DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
-            NODE_TAINTS: CriticalAddonsOnly
+            NODE_TAINTS: '${NODE_TAINTS}'
             PORTAINER_ADMIN_PASSWORD: ${PORTAINER_ADMIN_PASSWORD}
             NODE_MASTERS_INIT_COUNT: ${k3s_masters_init_count}
             NODE_MASTERS_ADD_COUNT: ${k3s_masters_add_count}
@@ -77,7 +77,7 @@ default:
             K3S_TOKEN: ${K3S_TOKEN}
             DOCKERHUB_LOGIN: ${DOCKERHUB_LOGIN}
             DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
-            NODE_TAINTS: CriticalAddonsOnly
+            NODE_TAINTS: '${NODE_TAINTS}'
             K3S_SERVER_IP_LIST:
               - 172.16.1.10
             NODE_MASTERS_INIT_COUNT: ${k3s_masters_init_count}

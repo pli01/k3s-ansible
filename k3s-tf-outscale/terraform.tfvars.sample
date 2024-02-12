@@ -14,13 +14,19 @@ parameters = {
   k3s_workers_count      = 2
 
   #
-  IP_ALLOW                 = "0.0.0.0/0"
   K3S_TOKEN = "__REPLACE_TOKEN__"
   DOCKER_LOGIN = ""
   DOCKER_TOKEN = ""
   PORTAINER_ADMIN_PASSWORD = "__REPLACE_THIS_WITH_BCRYPT_HASH__"
+  IP_ALLOW                 = "['0.0.0.0/0']"
 
   # heredoc multiline string use <<EOF
+  # IP_ALLOW         = <<EOF
+  #   [
+  #   '0.0.0.0/0'
+  #   ]
+  # EOF
+
   #  ssh_authorized_keys         = <<EOF
   #    [
   #    "ssh-rsa AAAAB3NXXXXXXX== user1@host1",

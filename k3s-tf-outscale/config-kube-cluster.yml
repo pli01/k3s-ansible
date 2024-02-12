@@ -22,7 +22,7 @@ default:
   whitelist:
     ssh_ip_whitelist: &ssh_ip_whitelist
     # - 0.0.0.0/0
-    - ${IP_ALLOW}
+      ${IP_ALLOW}
 
   cloud_init:
     cloudinit_bastion: &cloudinit_bastion
@@ -201,8 +201,7 @@ resources:
           - from_port_range: "22"
             to_port_range: "22"
             ip_protocol: tcp
-            ip_ranges:
-              *ssh_ip_whitelist
+            ip_ranges: [ *ssh_ip_whitelist ]
     in-ssh-from-bastion:
       - flow: Inbound
         rules:

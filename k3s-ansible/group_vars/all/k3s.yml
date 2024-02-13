@@ -2,28 +2,3 @@ k3s_version_default: v1.28.5+k3s1
 k3s_version: "{{ lookup('ansible.builtin.env','K3S_VERSION') | default(k3s_version_default, true) }}"
 
 k3s_token: "{{ lookup('ansible.builtin.env','K3S_TOKEN') | default() }}"
-
-ingress_nginx_chart_version: v4.9.0
-
-k3s_server_exec_extra_args: "--disable=traefik --disable=servicelb"
-k3s_server_manifests_templates:
-  #  ingress-nginx on ingress node
-  - {
-      src: 'ingress-nginx.yaml.j2',
-      dest: 'ingress-nginx.yaml',
-      vars: {
-        'ingress_nginx_namespace': 'ingress-nginx',
-        'ingress_nginx_name': 'nginx',
-        'ingress_nginx_nodeselector': { 'ingress': 'true' }
-      }
-    }
-  # ingress-nginx-admin on ingress-admin node
-#  - {
-#      src: 'ingress-nginx.yaml.j2',
-#      dest: 'ingress-nginx-admin.yaml',
-#      vars: {
-#        'ingress_nginx_namespace': 'ingress-nginx-admin',
-#        'ingress_nginx_name': 'nginx-admin',
-#        'ingress_nginx_nodeselector': { 'ingress-admin': 'true' }
-#      }
-#    }

@@ -122,10 +122,21 @@ resources:
   # public_ip
   #
   public_ip:
-    nat01: {}
-    lb-web01: {}
-    lb-admin01: {}
-    bastion: {}
+    # set public_ip
+#    nat01: {}
+#    lb-web01: {}
+#    lb-admin01: {}
+#    bastion: {}
+    # use pre defined public_ip
+    nat01:
+      public_ip: ${public_ip_nat01}
+    lb-web01:
+      public_ip: ${public_ip_lb_web}
+    lb-admin01:
+      public_ip: ${public_ip_lb_admin}
+    bastion:
+      public_ip: ${public_ip_bastion}
+
   #
   # net
   #
@@ -159,8 +170,14 @@ resources:
       route:
         - destination_ip_range: 0.0.0.0/0
           nat_service_id: nat01
-    private-worker-app-a:
+    private-worker-admin-a:
       ip_range: 172.16.2.0/24
+      subregion_name: a
+      route:
+        - destination_ip_range: 0.0.0.0/0
+          nat_service_id: nat01
+    private-worker-app-a:
+      ip_range: 172.16.3.0/24
       subregion_name: a
       route:
         - destination_ip_range: 0.0.0.0/0
@@ -221,6 +238,7 @@ resources:
             subnet_ranges:
               - public-master-a
               - private-master-a
+              - private-worker-admin-a
               - private-worker-app-a
     in-web-from-all:
       - flow: Inbound
@@ -259,6 +277,7 @@ resources:
   #            - master-add-a
             subnet_ranges:
               - private-master-a
+              - private-worker-admin-a
               - private-worker-app-a
           - from_port_range: "8472"
             to_port_range: "8472"
@@ -269,6 +288,7 @@ resources:
   #            - master-add-a
             subnet_ranges:
               - private-master-a
+              - private-worker-admin-a
               - private-worker-app-a
           - from_port_range: "10250"
             to_port_range: "10250"
@@ -279,6 +299,7 @@ resources:
   #            - master-add-a
             subnet_ranges:
               - private-master-a
+              - private-worker-admin-a
               - private-worker-app-a
 
     out-k3s-to-server:
@@ -301,6 +322,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
         - from_port_range: "8472"
           to_port_range: "8472"
@@ -311,6 +333,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
         - from_port_range: "10250"
           to_port_range: "10250"
@@ -321,6 +344,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
     in-k3s-from-worker:
       - flow: Inbound
@@ -334,6 +358,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
         - from_port_range: "10250"
           to_port_range: "10250"
@@ -344,6 +369,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
 
     out-k3s-to-worker:
@@ -367,6 +393,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
 
         - from_port_range: "10250"
@@ -378,6 +405,7 @@ resources:
 #            - worker-a
           subnet_ranges:
             - private-master-a
+            - private-worker-admin-a
             - private-worker-app-a
 
 #  load_balancers: {}
@@ -441,8 +469,7 @@ resources:
           unhealthy_threshold: 8
 
       backend_vms:
-        - master-a
-        - master-add-a
+        - worker-admin-a
 
   #
   # instances
@@ -511,7 +538,31 @@ resources:
       cloudinit_multipart:
         *cloudinit_kube_master_add
 
-    # added workers
+    # add workers
+    worker-admin-a:
+      count: ${k3s_workers_admin_count}
+      vm_type: *server_type
+      image_id: *debian
+      tags:
+        # tags to repulse instances on different hypervisor, on same cluster
+        osc.fcu.repulse_server_strict: worker-admin-a
+        osc.fcu.attract_cluster: ${prefix_name}
+        k3s.label.admin: true     # group
+        k3s.label.ingress-admin: true # type
+        kube_groups: "worker_admin_a,agent"
+      interfaces:
+        - subnet: private-worker-admin-a
+          security_groups:
+            - out-restricted-to-all
+            - in-ssh-from-bastion
+            - in-web-from-all
+            - in-k3s-from-worker
+            - out-k3s-to-worker
+      enable_user_data: true
+      cloudinit_multipart:
+        *cloudinit_kube_agent
+
+    # add workers
     worker-app-a:
       count: ${k3s_workers_count}
       vm_type: *server_type
